@@ -9,7 +9,7 @@ using api_desafio21dias.Servicos;
 namespace api_desafio21dias.Migrations
 {
     [DbContext(typeof(DbContexto))]
-    [Migration("20210821092830_AdmAdd")]
+    [Migration("20210821134153_AdmAdd")]
     partial class AdmAdd
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
