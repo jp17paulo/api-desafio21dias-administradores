@@ -26,7 +26,12 @@ namespace api_desafio21dias.Controllers
         [Route("/administradores")]
         public async Task<IActionResult> Index(int page = 1)
         {
-            return StatusCode(200, await _context.Administradores.OrderBy(a => a.Id).PaginateAsync(page, QUANTIDADE_POR_PAGINA));
+            return StatusCode(200, await _context.Administradores.OrderBy(a => a.Id).Select(a => new
+            {
+                Id = a.Id,
+                Nome = a.Nome,
+                Email = a.Email
+            }).PaginateAsync(page, QUANTIDADE_POR_PAGINA));
         }
 
         // GET: /administradores/5
