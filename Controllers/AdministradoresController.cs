@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using api_desafio21dias.Models;
 using api_desafio21dias.Servicos;
 using EntityFrameworkPaginateCore;
+using api_desafio21dias.ModelViews;
 
 namespace api_desafio21dias.Controllers
 {
@@ -32,6 +33,45 @@ namespace api_desafio21dias.Controllers
                 Nome = a.Nome,
                 Email = a.Email
             }).PaginateAsync(page, QUANTIDADE_POR_PAGINA));
+        }
+
+        // GET: /administradores/login
+        [HttpPost]
+        [Route("/administradores/login")]
+        public async Task<IActionResult> Login([FromBody] AdmLoginView admin)
+        {
+            if (string.IsNullOrEmpty(admin.Email) || string.IsNullOrEmpty(admin.Senha))
+            {
+                //400
+                // return BadRequest();
+
+                return StatusCode(400, new
+                {
+                    Mensagem = "É obrigatório passar o e-mail e a senha",
+                });
+            }
+
+            //Verificando se o usuário existe na base de dados
+            //var contem = (await _context.Administradores.Where(a => a.Email == email && a.Senha == senha).CountAsync()) > 0;
+
+            var administrador = await _context.Administradores.Where(a => a.Email == admin.Email && a.Senha == admin.Senha).FirstOrDefaultAsync();
+
+            if (administrador != null)
+            {
+                return StatusCode(200, new
+                {
+                    Id = administrador.Id,
+                    Nome = administrador.Nome,
+                    Email = administrador.Email,
+                });
+            }
+            //404
+            // return NotFound();
+
+            return StatusCode(401, new
+            {
+                Mensagem = "Usuário não permitido",
+            });
         }
 
         // GET: /administradores/5
