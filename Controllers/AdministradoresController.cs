@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using api_desafio21dias.Models;
 using api_desafio21dias.Servicos;
 using EntityFrameworkPaginateCore;
+using api_desafio21dias.ModelViews;
 
 namespace api_desafio21dias.Controllers
 {
@@ -26,7 +27,39 @@ namespace api_desafio21dias.Controllers
         [Route("/administradores")]
         public async Task<IActionResult> Index(int page = 1)
         {
-            return StatusCode(200, await _context.Administradores.OrderBy(a => a.Id).PaginateAsync(page, QUANTIDADE_POR_PAGINA));
+            return StatusCode(200, await _context.Administradores.OrderBy(a => a.Id).Select(a => new {
+               Id = a.Id,
+               Nome = a.Nome,
+               Email = a.Email
+               //Senha = a.Senha
+            }).PaginateAsync(page, QUANTIDADE_POR_PAGINA));
+        }
+
+        // GET: /administradores/login
+        [HttpPost]
+        [Route("/administradores/login")]
+        public async Task<IActionResult> Login([FromBody] AdmLoginView admin)
+        {
+            if (string.IsNullOrEmpty(admin.Email) || string.IsNullOrEmpty(admin.Senha))
+            {
+                    return   StatusCode(400, new {
+                    Mensagem = "É obrigatório passar o e-mail e a senha" //400
+                });
+            }
+
+            var administrador = await _context.Administradores.Where(a => a.Email == admin.Email && a.Senha == admin.Senha).FirstOrDefaultAsync();
+                if (administrador != null)
+                {
+                    return StatusCode(200, new {
+                    Id = administrador.Id,
+                    Nome = administrador.Nome,
+                    Email = administrador.Email
+                });
+            }
+
+            return   StatusCode(401, new {
+                    Mensagem = "Usuário ou senha não permitidos" //400
+                }); //404
         }
 
         // GET: /administradores/5
@@ -46,7 +79,11 @@ namespace api_desafio21dias.Controllers
                 return NotFound();
             }
 
-            return StatusCode(200, administrador);
+            return StatusCode(200, new {
+                Id = administrador.Id,
+                Nome = administrador.Nome,
+                Email = administrador.Email
+            });
         }
 
         // POST: /administradores
